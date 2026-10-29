@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws://127.0.0.1:8000 ws://localhost:8000;" />
+  <title>Chat Room — BlinkChat</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="chat-page">
+  <!-- Chat Top Bar -->
+  <header class="chat-header">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <a href="/" class="brand-link" style="font-size: 1.1rem;">
+        <div class="brand-logo-icon" style="width: 28px; height: 28px; font-size: 0.9rem;">⚡</div>
+        <span>BlinkChat</span>
+      </a>
+      <span id="chat-mode-badge" class="mode-badge mode-badge-temp" style="margin-bottom: 0;">Temporary</span>
+    </div>
+
+    <div class="chat-header-meta">
+      <div class="connection-indicator">
+        <span id="conn-dot" class="status-dot"></span>
+        <span id="conn-status-text">Connecting...</span>
+      </div>
+      <span id="participants-count" style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">
+        1/2 online
+      </span>
+      <button id="leave-room-btn" class="btn btn-sm btn-outline-danger">Leave</button>
+    </div>
+  </header>
+
+  <!-- Message Stream -->
+  <main class="chat-main">
+    <div id="messages-container" class="messages-area">
+      <div id="empty-state" class="empty-chat-state">
+        <div style="font-size: 2rem;">💬</div>
+        <p><strong>Room connected.</strong></p>
+        <p style="font-size: 0.85rem;">Messages sent here are visible only to the two participants in this room.</p>
+      </div>
+    </div>
+
+    <!-- Composer -->
+    <div class="chat-composer">
+      <form id="composer-form" class="composer-form">
+        <div class="composer-input-wrapper">
+          <textarea
+            id="composer-input"
+            class="composer-textarea"
+            placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+            rows="1"
+            maxlength="4000"
+            required
+            autocomplete="off"
+            spellcheck="true"
+          ></textarea>
+          <span id="char-counter" class="char-counter">0 / 4000</span>
+        </div>
+        <button type="submit" id="send-btn" class="btn btn-primary" style="height: 52px; padding: 0 1.25rem;">
+          Send
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script src="/js/chat.js"></script>
+</body>
+</html>

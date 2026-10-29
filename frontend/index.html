@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws://127.0.0.1:8000 ws://localhost:8000;" />
+  <title>BlinkChat — Private Real-Time Chat</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="/" class="brand-link">
+        <div class="brand-logo-icon">⚡</div>
+        <span>BlinkChat</span>
+      </a>
+      <div class="header-actions">
+        <a href="/join" class="btn btn-secondary btn-sm">Join a Room</a>
+        <button id="header-create-btn" class="btn btn-primary btn-sm">Create Room</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container narrow-container">
+      <span class="hero-pill">Zero Accounts · Zero Tracking</span>
+      <h1 class="hero-title">Private chat.<br>No accounts.</h1>
+      <p class="hero-subtitle">Two people, one room code, zero sign-ups. Secure peer-to-peer style conversation in your browser.</p>
+      <div class="hero-ctas">
+        <button id="hero-create-btn" class="btn btn-primary btn-lg">Create a Room</button>
+        <a href="/join" class="btn btn-secondary btn-lg">Join Existing Room</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- How it works -->
+    <h2 class="section-title">How BlinkChat Works</h2>
+    <div class="workflow-steps">
+      <div class="step-card">
+        <span class="step-number">Step 1</span>
+        <h3 class="step-title">🔑 Generate Credentials</h3>
+        <p class="step-desc">Pick Temporary or Saved mode. BlinkChat creates a unique 8-character room code and a strong password.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-number">Step 2</span>
+        <h3 class="step-title">📤 Share Privately</h3>
+        <p class="step-desc">Show your friend the generic QR code or send them the link to the entry page along with your room code & password.</p>
+      </div>
+      <div class="step-card">
+        <span class="step-number">Step 3</span>
+        <h3 class="step-title">💬 Chat in Real Time</h3>
+        <p class="step-desc">Connect via secure WebSockets. Once both participants join, the room is locked. Exactly two people, no eavesdroppers.</p>
+      </div>
+    </div>
+
+    <!-- Mode Comparison -->
+    <h2 class="section-title">Two Chat Modes</h2>
+    <div class="comparison-grid">
+      <div class="card">
+        <span class="mode-badge mode-badge-temp">Temporary Chat</span>
+        <h3>🕐 Ephemeral by Design</h3>
+        <p class="text-muted" style="margin-top: 0.5rem; margin-bottom: 1rem;">
+          Messages are held purely in server RAM while the session is live.
+        </p>
+        <ul style="padding-left: 1.25rem; color: var(--text-muted); font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.4rem;">
+          <li>Zero database persistence for message content</li>
+          <li>Automatically expires after 4 hours of creation</li>
+          <li>Closes after 30 minutes of complete inactivity</li>
+          <li>In-memory buffers wiped immediately upon room eviction</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="mode-badge mode-badge-saved">Saved Chat</span>
+        <h3>💾 Recoverable Session</h3>
+        <p class="text-muted" style="margin-top: 0.5rem; margin-bottom: 1rem;">
+          Messages are persisted securely in the database so you can resume after closing a tab.
+        </p>
+        <ul style="padding-left: 1.25rem; color: var(--text-muted); font-size: 0.9rem; display: flex; flex-direction: column; gap: 0.4rem;">
+          <li>Messages persisted in SQLite database</li>
+          <li>Survives accidental browser refreshes and tab closes</li>
+          <li>Re-authenticate using the same room code and password</li>
+          <li>Retained for up to 7 days before automated cleanup</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Flowchart Visual -->
+    <h2 class="section-title">The Connection Flow</h2>
+    <div class="flowchart-card">
+      <div class="flow-diagram">
+        <div class="flow-node">[ Creator ]</div>
+        <div class="flow-arrow">──POST /api/rooms──▶</div>
+        <div class="flow-node">[ Server Issues Code + Pwd ]</div>
+        <div class="flow-arrow">──Shares Offline──▶</div>
+        <div class="flow-node">[ Participant 2 ]</div>
+        <div class="flow-arrow">──POST /api/rooms/join──▶</div>
+        <div class="flow-node">[ 2-Person Room Locked ]</div>
+        <div class="flow-arrow">◀═══WebSocket Live Chat═══▶</div>
+      </div>
+    </div>
+
+    <!-- Accurate Privacy Note -->
+    <div class="privacy-note">
+      <h3 style="font-size: 1.05rem; margin-bottom: 0.25rem;">🔒 Honest Privacy Disclosure</h3>
+      <p>
+        BlinkChat uses cryptographic password hashing (Argon2id), HttpOnly session cookies, and strict origin checks. In Temporary Mode, message texts are stored in application memory only and never written to disk. Note: this application does not implement end-to-end client encryption (E2EE); the server processes message payloads. It is designed for low-friction, private ad-hoc conversations between two individuals.
+      </p>
+    </div>
+  </main>
+
+  <!-- Create Room Modal -->
+  <div id="create-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <h2 id="modal-title" style="font-size: 1.35rem;">Create a New Room</h2>
+        <button id="close-modal-btn" class="btn btn-secondary btn-sm" aria-label="Close modal">✕</button>
+      </div>
+
+      <div id="modal-create-step">
+        <div class="form-group">
+          <label class="form-label">Select Room Mode</label>
+          <div class="radio-cards">
+            <label class="radio-card active" id="label-temp">
+              <input type="radio" name="room-mode" value="temporary" checked />
+              <div class="radio-card-title">🕐 Temporary</div>
+              <div class="radio-card-desc">In-memory only. Wiped after 4h or 30m idle.</div>
+            </label>
+            <label class="radio-card" id="label-saved">
+              <input type="radio" name="room-mode" value="saved" />
+              <div class="radio-card-title">💾 Saved</div>
+              <div class="radio-card-desc">Persisted messages. Survives tab close (7d).</div>
+            </label>
+          </div>
+        </div>
+
+        <div id="create-error" class="alert alert-danger hidden"></div>
+
+        <button id="confirm-create-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+          Generate Room Credentials
+        </button>
+      </div>
+
+      <!-- Result Step (Shown Once) -->
+      <div id="modal-result-step" class="hidden">
+        <div class="alert alert-warning" style="font-size: 0.8rem;">
+          ⚠️ <strong>Save these credentials!</strong> The password is only displayed once and cannot be recovered if lost.
+        </div>
+
+        <div class="credentials-box">
+          <div class="credential-item">
+            <span class="credential-label">Room Code:</span>
+            <span id="display-room-code" class="credential-val">--------</span>
+            <button class="copy-btn" data-target="display-room-code">Copy</button>
+          </div>
+          <div class="credential-item">
+            <span class="credential-label">Password:</span>
+            <span id="display-room-password" class="credential-val">------------</span>
+            <button class="copy-btn" data-target="display-room-password">Copy</button>
+          </div>
+          <div class="credential-item">
+            <span class="credential-label">Mode:</span>
+            <span id="display-room-mode" style="font-weight: 700; text-transform: capitalize;">---</span>
+          </div>
+        </div>
+
+        <div class="qr-container">
+          <canvas id="qr-canvas"></canvas>
+          <p class="qr-caption">QR opens generic join page: <code>http://127.0.0.1:8000/join</code></p>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <button id="enter-room-btn" class="btn btn-primary" style="flex: 1;">
+            Enter Room as Participant 1
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>BlinkChat MVP · Not for production · No warranty</p>
+    </div>
+  </footer>
+
+  <!-- QR Code Generator from CDN with fallback -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

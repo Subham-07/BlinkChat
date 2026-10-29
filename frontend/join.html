@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws://127.0.0.1:8000 ws://localhost:8000;" />
+  <title>Join Room — BlinkChat</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-content">
+      <a href="/" class="brand-link">
+        <div class="brand-logo-icon">⚡</div>
+        <span>BlinkChat</span>
+      </a>
+      <a href="/" class="btn btn-secondary btn-sm">← Back Home</a>
+    </div>
+  </header>
+
+  <main class="container narrow-container" style="padding-top: 3rem; padding-bottom: 4rem;">
+    <div class="card">
+      <h1 style="font-size: 1.75rem; margin-bottom: 0.5rem; text-align: center;">Join a Room</h1>
+      <p class="text-muted" style="text-align: center; margin-bottom: 2rem; font-size: 0.95rem;">
+        Enter the room code and password shared by the room creator.
+      </p>
+
+      <div id="join-error" class="alert alert-danger hidden" role="alert"></div>
+
+      <form id="join-form">
+        <div class="form-group">
+          <label class="form-label" for="room-code-input">Room Code</label>
+          <input
+            type="text"
+            id="room-code-input"
+            class="input-field mono"
+            placeholder="e.g. 7X9K2MQ4"
+            required
+            maxlength="12"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="room-password-input">Room Password</label>
+          <div class="input-with-button">
+            <input
+              type="password"
+              id="room-password-input"
+              class="input-field mono"
+              placeholder="Enter room password"
+              required
+              maxlength="128"
+              autocomplete="current-password"
+            />
+            <button type="button" id="toggle-pwd-btn" class="input-toggle-btn" aria-label="Toggle password visibility">
+              👁
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="join-submit-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+          Join Securely
+        </button>
+      </form>
+
+      <div style="text-align: center; margin: 1.5rem 0 1rem;">
+        <span style="font-size: 0.85rem; color: var(--text-muted); position: relative;">
+          — OR —
+        </span>
+      </div>
+
+      <button id="scan-qr-btn" class="btn btn-secondary" style="width: 100%;">
+        📷 Scan Entry QR Code
+      </button>
+
+      <!-- Video Scanner Area (Hidden by Default) -->
+      <div id="scanner-box" class="scanner-container hidden">
+        <video id="qr-video" playsinline></video>
+        <button id="stop-scan-btn" class="btn btn-sm btn-outline-danger">Cancel Camera</button>
+        <p id="scan-status" style="font-size: 0.8rem; color: var(--text-muted);">Point camera at BlinkChat QR</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>BlinkChat MVP · Not for production · No warranty</p>
+    </div>
+  </footer>
+
+  <!-- jsQR from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="/js/join.js"></script>
+</body>
+</html>
